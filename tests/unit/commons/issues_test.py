@@ -35,8 +35,11 @@ class RawingTest(C.testing.SparkTestCase):
     def inputs(self):
         if self._inputs is None:
             x = os.path.join(self.config.lakes.transient, 'issues', 'issues.csv')
-            x = P.processors.issues.read_csv(x)
+            x = C.io.stream.read(x)
+            x = C.io.stream.conform(x)
+            x = C.io.stream.merge(x)
             self._inputs = x
+
         return self._inputs
     
     def setUp(self):

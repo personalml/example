@@ -4,14 +4,6 @@ import dextra.dna.core as C
 import dextra.dna.text as T
 
 
-def read_csv(x):
-    x = C.io.stream.read(x, header=True, multiLine=True, inferSchema=True, escape='"')
-    x = C.io.stream.conform(x)
-    x = C.io.stream.merge(x)
-
-    return x
-
-
 class Rawing(T.processors.Rawing):
     """issues Rawing Processor.
 

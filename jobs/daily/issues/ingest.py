@@ -23,7 +23,9 @@ def run(inputs, outputs):
     logging.info(f'The following files were found and will be ingested: {files}')
 
     x = [os.path.join(inputs, f) for f in files]
-    x = P.processors.issues.read_csv(x)
+    x = C.io.stream.read(x)
+    x = C.io.stream.conform(x)
+    x = C.io.stream.merge(x)
 
     (P.processors.issues.Rawing(inputs=x, outputs=outputs)
      .setup(P.config)

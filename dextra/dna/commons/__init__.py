@@ -1,4 +1,4 @@
-from . import processors
+from . import processors, settings
 
 from .configs import config
 
