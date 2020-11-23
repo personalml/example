@@ -1,0 +1,44 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+# To check commands run: `pre-commit run --all-files`
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.4.0
+    hooks:
+    -   id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+    -   id: end-of-file-fixer
+    -   id: double-quote-string-fixer
+    -   id: check-yaml
+    -   id: check-added-large-files
+    -   id: check-docstring-first
+    -   id: check-json
+    -   id: check-merge-conflict
+    -   id: debug-statements
+    -   id: detect-private-key
+    -   id: name-tests-test
+    -   id: no-commit-to-branch
+        args: [--branch, dev, --branch, main]
+        name: Don't commit to branch [ dev, main ]
+    #-   id: pretty-format-json
+    -   id: sort-simple-yaml
+-   repo: https://github.com/pre-commit/mirrors-autopep8
+    rev: 'v1.5.4'
+    hooks:
+    -   id: autopep8
+        name: PEP8 Lint
+-   repo: local
+    hooks:
+    -   id: check-vulnerabilities
+        name: Safety
+        entry: safety check --full-report -r
+        files: ^requirements.*.txt$
+        language: system
+        stages: [push]
+    -   id: run-tests
+        name: Pytest (via Docker)
+        entry: dna test
+        language: system
+        files: _test.py$
+        verbose: true
+        stages: [push]

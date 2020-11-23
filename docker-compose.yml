@@ -1,0 +1,22 @@
+version: '3'
+services:
+  commons:
+    build:
+      context: .
+      args:
+        config_path: config/$ENV
+        base_image: jupyter/pyspark-notebook
+    user: root
+    image: dna/$SERVICE
+    working_dir: /opt/dna/$SERVICE
+    env_file:
+      - config/$ENV/.env
+    ports:
+      - 127.0.0.1:$JUPYTER_PORT:$JUPYTER_PORT
+    volumes:
+      - .:/opt/dna/$SERVICE
+      - .:/src # Used by pre-commit on pytest step
+      - ./config/$ENV:/home/jovyan/dna
+      - ./datalake:/datalake
+      - ./datalake/scikit_learn_data:/home/jovyan/scikit_learn_data
+    entrypoint: ./config/$ENV/actions/run.sh
