@@ -3,13 +3,13 @@ import logging
 from argparse import ArgumentParser
 
 import dextra.dna.core as C
-import dextra.dna.bowling as B
+import dextra.dna.commons as P
 
 
 def parse_args():
     p = ArgumentParser('Ingest Issues on a Daily Basis Job')
-    p.add_argument('--inputs', default=os.path.join(B.config.lakes.transient, 'issues'))
-    p.add_argument('--outputs', default=os.path.join(B.config.lakes.raw, 'issues.parquet'))
+    p.add_argument('--inputs', default=os.path.join(P.config.lakes.transient, 'issues'))
+    p.add_argument('--outputs', default=os.path.join(P.config.lakes.raw, 'issues.parquet'))
     
     return p.parse_args()
 
@@ -22,16 +22,11 @@ def run(inputs, outputs):
 
     logging.info(f'The following files were found and will be ingested: {files}')
 
-    x = C.io.stream.read([os.path.join(inputs, f) for f in files],
-                         multiLine=True,
-                         escape='"',
-                         header=True,
-                         inferSchema=True)
-    x = C.io.stream.conform(x)
-    x = C.io.stream.merge(x)
+    x = [os.path.join(inputs, f) for f in files]
+    x = P.processors.issues.read_csv(x)
 
-    (B.processors.issues.Rawing(inputs=x, outputs=outputs)
-     .setup(B.config)
+    (P.processors.issues.Rawing(inputs=x, outputs=outputs)
+     .setup(P.config)
      .perform()
      .describe()
      .save()
@@ -39,7 +34,7 @@ def run(inputs, outputs):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(**B.config.logging.default.asDict())
+    logging.basicConfig(**P.config.logging.default.asDict())
     args = parse_args()
 
     run(args.inputs, args.outputs)
