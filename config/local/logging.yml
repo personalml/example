@@ -1,6 +1,6 @@
 logging:
   default:
-    level: DEBUG
+    level: INFO
     format: '%(message)s'
   processors:
     describe: |-

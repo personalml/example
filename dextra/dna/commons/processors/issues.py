@@ -5,7 +5,7 @@ import dextra.dna.text as T
 
 
 class Rawing(T.processors.Rawing):
-    """issues Rawing Processor.
+    """Issues Rawing Processor.
 
     transient → raw
 
