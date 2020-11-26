@@ -1,5 +1,11 @@
-import os
+"""Ingest issues from a CSV into our datalake.
+
+The ingestion will happen onto the lake described by the configuration
+of the environment running this job.
+
+"""
 import logging
+import os
 from argparse import ArgumentParser
 
 import dextra.dna.core as C
@@ -7,10 +13,10 @@ import dextra.dna.commons as P
 
 
 def parse_args():
-    p = ArgumentParser('Ingest Issues on a Daily Basis Job')
+    p = ArgumentParser(description=__doc__)
     p.add_argument('--inputs', default=os.path.join(P.config.lakes.transient, 'issues'))
-    p.add_argument('--outputs', default=os.path.join(P.config.lakes.raw, 'issues.parquet'))
-    
+    p.add_argument('--outputs', default=os.path.join(P.config.lakes.raw, 'issues.staged.parquet'))
+
     return p.parse_args()
 
 
@@ -23,15 +29,12 @@ def run(inputs, outputs):
     logging.info(f'The following files were found and will be ingested: {files}')
 
     x = [os.path.join(inputs, f) for f in files]
-    x = C.io.stream.read(x)
-    x = C.io.stream.conform(x)
-    x = C.io.stream.merge(x)
 
     (P.processors.issues.Rawing(inputs=x, outputs=outputs)
      .setup(P.config)
      .perform()
-     .describe()
      .save()
+     .describe()
      .teardown())
 
 

@@ -7,7 +7,7 @@ import dextra.dna.commons as P
 
 
 def parse_args():
-    p = ArgumentParser('Learn Issues on a Daily Basis Job')
+    p = ArgumentParser()
     p.add_argument('--inputs', default=os.path.join(P.config.lakes.trusted, 'issues.parquet'))
     p.add_argument('--outputs', default=os.path.join(P.config.lakes.refined, 'issues.parquet'))
 

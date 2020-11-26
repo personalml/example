@@ -8,17 +8,17 @@ import dextra.dna.commons as P
 
 def parse_args():
     p = ArgumentParser()
-    p.add_argument('--inputs', default=os.path.join(P.config.lakes.raw, 'issues.staged.parquet'))
-    p.add_argument('--outputs', default=os.path.join(P.config.lakes.trusted, 'issues.staged.parquet'))
+    p.add_argument('--inputs', default=os.path.join(P.config.lakes.trusted, 'issues.staged.parquet'))
+    p.add_argument('--outputs', default=os.path.join(P.config.lakes.refined, 'issues.staged.parquet'))
 
     return p.parse_args()
 
 
 def run(inputs, outputs):
     if not C.io.storage.exists(inputs):
-        return logging.info('Nothing to trust on today. See you tomorrow.')
+        return logging.info('Nothing to refine today. See you tomorrow.')
 
-    (P.processors.issues.Trusting(inputs=inputs, outputs=outputs)
+    (P.processors.issues.Refining(inputs=inputs, outputs=outputs)
      .setup(P.config)
      .perform()
      .save()

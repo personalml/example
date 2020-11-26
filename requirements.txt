@@ -25,5 +25,5 @@ seaborn
 # cryptography>=2.7
 
 ## Text
-# nltk
-# spacy
+nltk
+spacy

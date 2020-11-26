@@ -2,4 +2,5 @@
 
 """
 
-from . import issues
+from . import (entities,
+               issues)
