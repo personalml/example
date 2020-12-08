@@ -2,5 +2,5 @@
 
 """
 
-from . import (entities,
+from . import (collections,
                issues)

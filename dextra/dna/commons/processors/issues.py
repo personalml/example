@@ -25,7 +25,7 @@ class Rawing(mixins.InconsistentInputsMixin,
 
     """
     SAVING_OPTIONS = {'mode': 'append'}
-    SENSIBLE_COLUMNS = ('complaint_id', 'customer_name', 'state')
+    SENSIBLE_COLUMNS = ('complaint_id', 'customer_name')
 
     def call(self, x: F.DataFrame):
         x = self.encryption_step(x)

@@ -1,9 +1,10 @@
+import abc
 from typing import List
 import pyspark.sql.functions as F
 import dextra.dna.core as C
 
 
-class EntityExtracting(C.processors.Trusting):
+class ExtractionBase(C.processors.Trusting, metaclass=abc.ABCMeta):
     ENTITY_FIELDS: List[str] = NotImplemented
     DATE_FIELD = 'ingested_at'
 
@@ -22,21 +23,21 @@ class EntityExtracting(C.processors.Trusting):
         )
 
 
-class Users(EntityExtracting):
+class Users(ExtractionBase):
     ENTITY_FIELDS = ['customer_name']
 
 
-class Products(EntityExtracting):
+class Products(ExtractionBase):
     ENTITY_FIELDS = ['product']
 
 
-class SubProducts(EntityExtracting):
+class SubProducts(ExtractionBase):
     ENTITY_FIELDS = ['sub_product']
 
 
-class Addresses(EntityExtracting):
+class Addresses(ExtractionBase):
     ENTITY_FIELDS = ['zip_code', 'state']
 
 
-class Channels(EntityExtracting):
+class Channels(ExtractionBase):
     ENTITY_FIELDS = ['via']

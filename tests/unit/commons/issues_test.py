@@ -25,7 +25,7 @@ class RawingTest(C.testing.SparkTestCase):
         'tags': 'string',
         'timely_response': 'string',
         'via': 'string',
-        'zip_code': 'int',
+        'zip_code': 'string',
         'ingested_at': 'timestamp',
         'tags_trusted_labels': 'boolean',
         'tags_split': 'string',
@@ -61,7 +61,7 @@ class RawingTest(C.testing.SparkTestCase):
         self.assertSchemaMatches(outputs, self.EXPECTED_SCHEMA)
 
     def test_has_sensible_columns_attr(self):
-        self.assertEqual(('complaint_id', 'customer_name', 'state'),
+        self.assertEqual(('complaint_id', 'customer_name'),
                          self.p.SENSIBLE_COLUMNS)
 
     def test_correctly_encrypts_data(self):

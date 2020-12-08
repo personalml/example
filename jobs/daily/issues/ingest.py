@@ -21,7 +21,9 @@ def parse_args():
 
 
 def run(inputs, outputs):
-    files = C.io.storage.listdir(inputs)
+    files = [f
+             for f in C.io.storage.listdir(inputs)
+             if f.endswith('.csv')]
 
     if not files:
         return logging.info('Nothing to process today. See you tomorrow.')

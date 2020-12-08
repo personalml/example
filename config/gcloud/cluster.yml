@@ -101,12 +101,3 @@ config:
       yarn:yarn.scheduler.minimum-allocation-mb: '512'
   endpointConfig:
     enableHttpPortAccess: true
-    httpPorts:
-      HDFS NameNode: https://vl5ofogf2fbypp4iugf6vo3e2m-dot-us-central1.dataproc.googleusercontent.com/hdfs/dfshealth.html
-      Jupyter: https://vl5ofogf2fbypp4iugf6vo3e2m-dot-us-central1.dataproc.googleusercontent.com/jupyter/
-      JupyterLab: https://vl5ofogf2fbypp4iugf6vo3e2m-dot-us-central1.dataproc.googleusercontent.com/jupyter/lab/
-      MapReduce Job History: https://vl5ofogf2fbypp4iugf6vo3e2m-dot-us-central1.dataproc.googleusercontent.com/jobhistory/
-      Spark History Server: https://vl5ofogf2fbypp4iugf6vo3e2m-dot-us-central1.dataproc.googleusercontent.com/sparkhistory/
-      Tez: https://vl5ofogf2fbypp4iugf6vo3e2m-dot-us-central1.dataproc.googleusercontent.com/apphistory/tez-ui/
-      YARN Application Timeline: https://vl5ofogf2fbypp4iugf6vo3e2m-dot-us-central1.dataproc.googleusercontent.com/apphistory/
-      YARN ResourceManager: https://vl5ofogf2fbypp4iugf6vo3e2m-dot-us-central1.dataproc.googleusercontent.com/yarn/
