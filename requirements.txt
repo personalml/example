@@ -27,3 +27,7 @@ seaborn
 ## Text
 nltk
 spacy
+
+
+## Project's Specific
+retry

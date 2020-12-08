@@ -8,18 +8,19 @@ import dextra.dna.commons as P
 
 def parse_args():
     p = ArgumentParser()
-    p.add_argument('--inputs', default=os.path.join(P.config.lakes.trusted, 'issues.parquet'))
-    p.add_argument('--outputs', default=os.path.join(P.config.lakes.refined, 'issues.parquet'))
+    p.add_argument('--inputs', default=os.path.join(P.config.lakes.refined, 'issues.parquet'))
+    p.add_argument('--outputs', default=os.path.join(P.config.lakes.models, 'logs/encoder_trainings.parquet'))
 
     return p.parse_args()
 
 
 def run(inputs, outputs):
-    (P.processors.issues.LearningProducts(inputs=inputs, outputs=outputs)
+    (C.Job(
+        P.processors.products.LearningEncoder(inputs=inputs, outputs=outputs)
+     )
      .setup(P.config)
-     .perform()
      .describe()
-     .save()
+     .perform()
      .teardown())
 
 

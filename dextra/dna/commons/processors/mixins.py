@@ -1,6 +1,8 @@
 import logging
 import os
 
+from retry import retry
+
 import dextra.dna.core as C
 
 from ..utils import remove_if_exists
@@ -15,12 +17,11 @@ class InconsistentInputsMixin:
     def load(self):
         super().load()
 
-        x = self.loaded['inputs']
-        x = C.io.stream.read(x)
-        x = C.io.stream.conform(x)
-        x = C.io.stream.merge(x)
+        for i, x in self.loaded.items():
+            x = C.io.stream.conform(x)
+            x = C.io.stream.merge(x)
 
-        self.loaded['inputs'] = x
+            self.loaded[i] = x
 
         return self
 
@@ -42,6 +43,7 @@ class TearInputsMixin:
 
 
 class BackupInputsMixin:
+    @retry(TimeoutError, tries=5, delay=1, backoff=2)
     def teardown(self):
         for f in C.utils.to_list(self.inputs):
             if not isinstance(f, str):

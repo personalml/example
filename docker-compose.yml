@@ -13,6 +13,7 @@ services:
       - config/$ENV/.env
     ports:
       - 127.0.0.1:$JUPYTER_PORT:$JUPYTER_PORT
+      - 4041:4041
     volumes:
       - .:/opt/dna/$SERVICE
       - .:/src # Used by pre-commit on pytest step

@@ -83,11 +83,11 @@ class RawingTest(C.testing.SparkTestCase):
 
 
 class TrustingTest(C.testing.SparkTestCase):
-    INPUT_DATA = [(None, '2020-01-01'),
-                  ('1', '2020-01-01'),
-                  ('1', '2020-01-02'),
-                  ('2', '2020-01-01'),
-                  ('3', '2020-01-01')]
+    INPUT_DATA = [(None, '2020-01-01', 'Hello there!'),
+                  ('1', '2020-01-01', 'Hello there!'),
+                  ('1', '2020-01-02', 'Hello there!'),
+                  ('2', '2020-01-01', 'Hello there!'),
+                  ('3', '2020-01-01', 'Hello there!')]
 
     _inputs = None
 
@@ -95,7 +95,7 @@ class TrustingTest(C.testing.SparkTestCase):
     def inputs(self):
         if self._inputs is None:
             self._inputs = self.spark.createDataFrame(
-                self.INPUT_DATA, ['complaint_id', 'ingested_at'])
+                self.INPUT_DATA, ['complaint_id', 'ingested_at', 'consumer_message'])
 
         return self._inputs
 

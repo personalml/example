@@ -21,7 +21,7 @@ def parse_args():
 
 
 def run(inputs, outputs):
-    files = [f
+    files = [os.path.join(inputs, f)
              for f in C.io.storage.listdir(inputs)
              if f.endswith('.csv')]
 
@@ -30,9 +30,7 @@ def run(inputs, outputs):
 
     logging.info(f'The following files were found and will be ingested: {files}')
 
-    x = [os.path.join(inputs, f) for f in files]
-
-    (P.processors.issues.Rawing(inputs=x, outputs=outputs)
+    (P.processors.issues.Rawing(inputs=files, outputs=outputs)
      .setup(P.config)
      .perform()
      .save()

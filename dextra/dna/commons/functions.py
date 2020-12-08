@@ -15,3 +15,13 @@ def confirming_word_as_bool(col: str) -> F.Column:
     return (F.when(col == 'yes', True)
             .when(col == 'no', False)
             .otherwise(None))
+
+
+def stats(col: str) -> F.Column:
+    return F.struct(
+        F.min(col).alias('min'),
+        F.max(col).alias('max'),
+        F.avg(col).alias('avg'),
+        F.count(col).alias('count'),
+        F.countDistinct(col).alias('countDistinct'),
+    )

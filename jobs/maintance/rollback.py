@@ -13,6 +13,8 @@ from typing import List
 import dextra.dna.core as C
 import dextra.dna.commons as P
 
+from dextra.dna.commons.utils import remove_if_exists
+
 
 def parse_args():
     p = ArgumentParser(description=__doc__)
@@ -37,12 +39,7 @@ def purge_stages(stages, only_staged):
         return
 
     remove_if_exists(os.path.join(P.config.lakes.refined, 'issues.parquet'))
-
-
-def remove_if_exists(pqt):
-    if C.io.storage.exists(pqt):
-        C.io.storage.delete(pqt)
-        logging.info(f'  - {pqt} removed')
+    remove_if_exists(os.path.join(P.config.lakes.refined, 'collections'))
 
 
 def roll_transient_backup():

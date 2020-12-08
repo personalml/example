@@ -1,7 +1,7 @@
 import logging
 
 import dextra.dna.text as T
-from pyspark.sql import functions as F
+import pyspark.sql.functions as F
 
 from . import mixins
 from ..functions import confirming_word_as_bool
@@ -13,7 +13,7 @@ class Rawing(mixins.InconsistentInputsMixin,
              T.processors.Rawing):
     """Issues Rawing Processor.
 
-    transient → raw
+    transient/issues/* → raw/issues
 
     Operations:
     - Hash content in sensible columns.
@@ -35,9 +35,11 @@ class Rawing(mixins.InconsistentInputsMixin,
 
     def encryption_step(self, x: F.DataFrame):
         x = self.hash_sensible_info(x, self.SENSIBLE_COLUMNS)
-
-        patterns = {'numeric': r'\d+', **T.datasets.COMMON_PATTERNS}
-        x = self.exclude_sensible_info(x, 'consumer_message', patterns)
+        x = self.exclude_sensible_info(x, 'consumer_message', {
+            'hash': r'X+(\sX+)*',
+            'numeric': r'\d+',
+            **T.datasets.COMMON_PATTERNS
+        })
 
         return x
 
@@ -52,7 +54,7 @@ class Trusting(mixins.TearInputsMixin,
                T.processors.Trusting):
     """Issues Trusting Processor.
 
-    raw → trusted
+    raw/issues → trusted/issues
 
     Discard samples without ``ids`` and remove
     entry duplicates by removing the older ones.
@@ -61,7 +63,10 @@ class Trusting(mixins.TearInputsMixin,
     SAVING_OPTIONS = {'mode': 'append'}
 
     def call(self, x: F.DataFrame):
-        x = x.where(x.complaint_id.isNotNull())
+        x = x.where(x.complaint_id.isNotNull() &
+                    x.consumer_message.isNotNull() &
+                    (x.consumer_message != ''))
+
         x = self.discard_duplicates(x, 'complaint_id', 'ingested_at')
 
         return x
@@ -71,7 +76,7 @@ class Refining(mixins.TearInputsMixin,
                T.processors.Refining):
     """Issues Refining Processor.
 
-    trusted → refined
+    trusted/issues → refined/issues
 
     Operations:
       - Parse textual columns into they meaningful types -- examples:
@@ -98,13 +103,13 @@ class Refining(mixins.TearInputsMixin,
                 .withColumn('timely_response', confirming_word_as_bool('timely_response')))
 
     def clean_text_step(self, x: F.DataFrame):
-        return x.withColumn('text_cleaned', T.functions.clean(x.consumer_message))
+        return x.withColumn('text_cleaned', T.functions.clean('consumer_message'))
 
 
 class Committing(T.processors.Trusting):
     """Issues Committing Processor.
 
-    refined → refined
+    refined/issues.staged → refined/issues
 
     Commits staged issues refined data, discarding repetitions within the
     staged data based on their ``complaint_id``, as well as all issues that
@@ -126,20 +131,13 @@ class Committing(T.processors.Trusting):
         s = self.discard_duplicates(staged, 'complaint_id', 'ingested_at')
 
         if committed:
-            s = (s
-                 .join(committed, on='complaint_id', how='left_anti')
-                 .cache())
+            logging.info('Committed pool exists. Merging.')
 
-            # This line is very important,
-            # as it consolidates the cache:
-            persisting_records = s.count()
-
-            logging.info(f'{persisting_records} staging records were not '
-                         f'found in the lake and will be committed.')
+            s = s.join(committed, on='complaint_id', how='left_anti')
+            logging.info(f'From all staging records, {s.count()} are not '
+                         f'in the committed pool and will be added.')
 
         return s.withColumn('committed_at', F.current_timestamp())
 
-    def teardown(self):
-        remove_if_exists(self.inputs['staged'])
-
-        self.processed.unpersist()
+    # def teardown(self):
+    #     remove_if_exists(self.inputs['staged'])
