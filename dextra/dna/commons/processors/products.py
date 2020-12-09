@@ -70,10 +70,20 @@ class LearningEncoder(EncoderMixin,
 
 class Encode(EncoderMixin,
              T.processors.Refining):
-    def call(self, x):
-        logging.info(f'Loading text encoder from {self.encoder_weights}.')
-        self.text_encoder = PipelineModel.load(self.encoder_weights)
 
-        y = self.text_encoder.transform(x)
+    SAVING_OPTIONS = {'mode': 'overwrite'}
 
-        return y
+    def call(self, x: F.DataFrame):
+        x = x.repartition('product', 'issue')
+        x = self.encode_text_with_word2vec_step(x)
+
+        return x
+
+    def encode_text_with_word2vec_step(self, x):
+        with C.utils.stopwatch(mode='silent') as et:
+            enc = PipelineModel.load(self.encoder_weights)
+            x = enc.transform(x)
+
+        self.watches['encode'] = et
+
+        return x

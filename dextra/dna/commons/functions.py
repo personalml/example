@@ -1,4 +1,4 @@
-from pyspark.sql import functions as F
+from pyspark.sql import types, functions as F
 
 
 def confirming_word_as_bool(col: str) -> F.Column:
@@ -25,3 +25,8 @@ def stats(col: str) -> F.Column:
         F.count(col).alias('count'),
         F.countDistinct(col).alias('countDistinct'),
     )
+
+
+@F.udf(types.DoubleType())
+def dot(x, y):
+    return float(x.dot(y))
