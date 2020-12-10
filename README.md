@@ -13,10 +13,14 @@ Exemplifies a python project using the DnA Core and Text libraries.
 
 ### Data and Problem Domain Set
 
-The dataset used in this project is the customer-issues. It can be found at
-the `dna_commons` bucket in the `dxtdna` Google Cloud project. Additionally,
-you can check it in Kaggle:
-[dushyantv/consumer_complaints](https://www.kaggle.com/dushyantv/consumer_complaints).
+The dataset used in this project is a small variation of 
+the [dushyantv/consumer_complaints](https://www.kaggle.com/dushyantv/consumer_complaints)
+kaggle dataset.
+
+Our fork can be found at the `dna_commons` bucket in the `dxtdna` Google Cloud project:
+```shell
+gsutil ls gs://dna_commons/transient/issues/customer-issues.unsecure.csv
+```
 
 We simulate a dataflow in which users will daily post they complaints into
 a bucket. We ingest these text complaints and store them in a more
@@ -24,9 +28,11 @@ efficient data representation (multiple parquet files), persisted in
 the data lake referenced in the `config/{ENV}/lakes.yml` file.
 
 ## Usage
+
 ```shell
 dna start    # Equivalent to `dna start local`
 dna explore  # A local jupyter server is now
              # available at localhost:8086
 dna test     # run all tests from repo
 ```
+
