@@ -18,18 +18,6 @@ def run(inputs, outputs):
     if not C.io.storage.exists(inputs):
         return logging.info('Nothing to commit today. See you tomorrow.')
 
-    if C.io.storage.exists(outputs):
-        # Only pass committed if there's committed data. Otherwise,
-        # the processor will attempt to load a None stream.
-        logging.info(f'Committed data found at {outputs}. It will be passed '
-                     f'to the processor so it can be subtracted from the '
-                     f'staging data.')
-        committed = outputs
-    else:
-        committed = None
-
-    inputs = {'staged': inputs, 'committed': committed}
-
     (P.processors.issues.Committing(inputs, outputs)
       .setup(P.config)
       .perform()

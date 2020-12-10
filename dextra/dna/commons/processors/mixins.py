@@ -1,14 +1,12 @@
 import logging
-import os
-
-from retry import retry
 
 import dextra.dna.core as C
+from pyspark.sql.utils import AnalysisException
 
-from ..utils import remove_if_exists
+from ..utils import backup_if_exists, remove_if_exists
 
 
-class InconsistentInputsMixin:
+class InconsistentInputsMixin(C.processors.Processor):
     """Load (possibly inconsistent) inputs, conform and
     merge all of them before calling the processor.
 
@@ -43,21 +41,32 @@ class TearInputsMixin:
 
 
 class BackupInputsMixin:
-    @retry(TimeoutError, tries=5, delay=1, backoff=2)
+    """Similar to ``TearInputsMixin``, but moves the inputs to the backup
+    bucket during teardown.
+
+    """
     def teardown(self):
         for f in C.utils.to_list(self.inputs):
-            if not isinstance(f, str):
-                continue
-
-            if not C.io.storage.exists(f):
-                logging.warning(f'Processor {self.fullname()} cannot remove '
-                                f'input file {f}, as it does not exist.')
-                continue
-
-            # gs://dna_commons/backup/dna_commons/transient/issues/file.csv
-            bk = os.path.join(self.config.lakes.backup,
-                              C.io.storage.without_protocol(f).lstrip('/'))
-            C.io.storage.move(f, bk)
-            logging.debug(f'Input file {f} moved to {bk}.')
+            backup_if_exists(f, self.config.lakes.backup)
 
         return self
+
+
+class DeltaCommitMixin:
+    def discard_already_committed(self, staged):
+        try:
+            committed = C.io.stream.read(self.outputs)
+            logging.info(f'Committed pool {self.outputs} exists. '
+                         f'Removing repetitions in staged data.')
+
+            return staged.join(committed, on='complaint_id', how='left_anti')
+
+        except AnalysisException as error:
+            if 'Path does not exist' in error.desc:
+                logging.info(f'Committed records not found in {self.outputs}. '
+                             f'All staged records will be committed.')
+                return staged
+
+            # I don't know which error this is. Delegate to
+            # error handling in the upper execution stack.
+            raise

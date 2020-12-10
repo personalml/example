@@ -1,11 +1,8 @@
-import logging
-
 import dextra.dna.text as T
 import pyspark.sql.functions as F
 
 from . import mixins
 from ..functions import confirming_word_as_bool
-from ..utils import remove_if_exists
 
 
 class Rawing(mixins.InconsistentInputsMixin,
@@ -106,38 +103,23 @@ class Refining(mixins.TearInputsMixin,
         return x.withColumn('text_cleaned', T.functions.clean('consumer_message'))
 
 
-class Committing(T.processors.Trusting):
+class Committing(mixins.DeltaCommitMixin,
+                 mixins.TearInputsMixin,
+                 T.processors.Trusting):
     """Issues Committing Processor.
 
     refined/issues.staged → refined/issues
 
     Commits staged issues refined data, discarding repetitions within the
     staged data based on their ``complaint_id``, as well as all issues that
-    have already been added to the committed pool.
-
-    This processor has two inputs, which means inputs data must be passed
-    as a dict containing keys that match the argument names in the ``call``
-    method. Example:
-
-        >>> inputs = {'staged': ..., 'committed': ...}
-        >>> output_pqt = ...
-        >>> proc = Committing(inputs, output_pqt)
+    have already been added to the committed pool (``mixins.DeltaCommitMixin``
+    takes care of this part).
 
     """
-
     SAVING_OPTIONS = {'mode': 'append'}
 
-    def call(self, staged, committed):
-        s = self.discard_duplicates(staged, 'complaint_id', 'ingested_at')
+    def call(self, x):
+        x = self.discard_duplicates(x, 'complaint_id', 'ingested_at')
+        x = self.discard_already_committed(x)
 
-        if committed:
-            logging.info('Committed pool exists. Merging.')
-
-            s = s.join(committed, on='complaint_id', how='left_anti')
-            logging.info(f'From all staging records, {s.count()} are not '
-                         f'in the committed pool and will be added.')
-
-        return s.withColumn('committed_at', F.current_timestamp())
-
-    # def teardown(self):
-    #     remove_if_exists(self.inputs['staged'])
+        return x.withColumn('committed_at', F.current_timestamp())

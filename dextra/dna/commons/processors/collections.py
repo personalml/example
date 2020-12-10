@@ -1,10 +1,14 @@
 import abc
 from typing import List
-import pyspark.sql.functions as F
+
 import dextra.dna.core as C
+import pyspark.sql.functions as F
+
+from . import mixins
 
 
-class ExtractionBase(C.processors.Trusting, metaclass=abc.ABCMeta):
+class ExtractionBase(mixins.DeltaCommitMixin,
+                     C.processors.Trusting, metaclass=abc.ABCMeta):
     ENTITY_FIELDS: List[str] = NotImplemented
     DATE_FIELD = 'ingested_at'
 
@@ -12,6 +16,7 @@ class ExtractionBase(C.processors.Trusting, metaclass=abc.ABCMeta):
 
     def call(self, x):
         x = self.discard_duplicates(x, self.ENTITY_FIELDS, self.DATE_FIELD)
+        x = self.discard_already_committed(x)
 
         return x.select(
             'complaint_id',

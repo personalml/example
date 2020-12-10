@@ -25,7 +25,7 @@ class RawingTest(C.testing.SparkTestCase):
         'tags': 'string',
         'timely_response': 'string',
         'via': 'string',
-        'zip_code': 'string',
+        'zip_code': 'int',
         'ingested_at': 'timestamp',
         'tags_trusted_labels': 'boolean',
         'tags_split': 'string',
