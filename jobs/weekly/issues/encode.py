@@ -28,6 +28,7 @@ def run(inputs, outputs):
 
 if __name__ == '__main__':
     logging.basicConfig(**P.config.logging.default.asDict())
+
     args = parse_args()
 
     run(args.inputs, args.outputs)

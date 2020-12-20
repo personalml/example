@@ -16,7 +16,7 @@ def parse_args():
 
 def run(inputs, outputs):
     (C.Job(
-        P.processors.products.LearningEncoder(inputs=inputs, outputs=outputs)
+        P.processors.products.Learn(inputs=inputs, outputs=outputs)
      )
      .setup(P.config)
      .describe()

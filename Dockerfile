@@ -13,6 +13,6 @@ RUN pip install --quiet -r requirements.txt
 ADD tests/requirements.txt .
 RUN pip install --quiet -r requirements.txt
 
-ADD $config_path/spark-defaults.conf $SPARK_HOME/conf/
+ADD $config_path/spark/* $SPARK_HOME/conf/
 
 RUN echo 'c.NotebookApp.contents_manager_class = "notedown.NotedownContentsManager"' >> ~/.jupyter/jupyter_notebook_config.py

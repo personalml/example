@@ -15,8 +15,8 @@ class EncoderMixin:
         return os.path.join(self.config.lakes.models, 'products', 'word2vec')
 
 
-class LearningEncoder(EncoderMixin,
-                      T.processors.Refining):
+class Learn(EncoderMixin,
+            T.processors.Refining):
     SAVING_OPTIONS = {'mode': 'append'}
 
     ENCODER_FN_PARAMS = {
@@ -25,16 +25,20 @@ class LearningEncoder(EncoderMixin,
         'features': 128}
 
     def call(self, x):
-        x = x.where(x.tags_trusted_labels & (x.tags_split == 'train'))
-        training_samples = x.count()
-        logging.info(f'Training Word2Vec encoder over {training_samples} samples.')
-
-        _ = self.fit_encoder(x)
-        s = self.extract_stats(x)
+        x = self.select_trusted_step(x)
+        _ = self.fit_encoder_step(x)
+        s = self.extract_stats_step(x)
 
         return s
+    
+    def select_trusted_step(self, x):
+        x = x.where(x.tags_trusted_labels & (x.tags_split == 'train'))
+        
+        logging.info(f'Training Word2Vec encoder over {x.count()} samples.')
 
-    def fit_encoder(self, x):
+        return x
+
+    def fit_encoder_step(self, x):
         with C.utils.stopwatch(mode='silent') as et:
             model = T.models.word2vec(**self.ENCODER_FN_PARAMS)
             model = model.fit(x)
@@ -44,7 +48,7 @@ class LearningEncoder(EncoderMixin,
 
         return model
 
-    def extract_stats(self, x):
+    def extract_stats_step(self, x):
         return x.select(
             *(F.lit(str(v)).alias(k) for k, v in self.training_info().items()),
             F.current_timestamp().alias('trained_at'),
